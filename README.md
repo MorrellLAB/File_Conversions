@@ -16,3 +16,4 @@ Scripts to convert between file formats for various analyses
 | VCF_to_HapMap.py | Tom Kono | Genomic Prediction | Convert from VCF to a TASSEL HapMap format |
 | VCF_to_Phylip.py | Tom Kono | NA | Convert from a VCF to an input for PHYLIP programs |
 | Format_HTable.py | Tom Kono | North America FST | Subset or reorder samples in a Hudson table for input into libsequence tools that require partitioning |
+| Barley_Parts_to_Pseudomolecules.py | Tom Kono | Genomic Prediction | Convert VCF coordinates from the IPK psuedomolecule parts assembly to the non-split coordinates. |
