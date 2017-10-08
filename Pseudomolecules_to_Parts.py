@@ -14,7 +14,8 @@ PARTS_SIZES = {
     'chr5H': 380865482,
     'chr6H': 294822070,
     'chr7H': 325797516,
-    'chrUn': 249774706
+    'chrUn': 249774706,
+    'Pt': 999999999999
     }
 
 
@@ -89,7 +90,7 @@ def vcf_conv(intervals):
                 # name to part2
                 # Also passing 'chrUn' unchanged, as there is only 1 part
                 limit = PARTS_SIZES[chrom]
-                if chrom == 'chrUn':
+                if chrom == 'chrUn' or chrom == 'Pt':
                     newchrom = chrom
                     newpos = str(pos)
                 elif pos > limit:
@@ -106,6 +107,9 @@ def bed_conv(intervals):
     """Convert BED."""
     with open(intervals, 'r') as f:
         for line in f:
+            if line.startswith('#'):
+                print line.strip()
+                continue
             tmp = line.strip().split()
             chrom = tmp[0]
             # Check that the chromosomes are named as we are expecting
@@ -117,7 +121,11 @@ def bed_conv(intervals):
             # Check the coordinates of the start and stop positions with respect
             # to the part1 boundary
             limit = PARTS_SIZES[chrom]
-            if start+1 > limit and end+1 > limit:
+            if chrom == 'ChrUn' or chrom == 'Pt':
+                newchrom = chrom
+                newstart = str(start)
+                newend = str(end)
+            elif start+1 > limit and end+1 > limit:
                 newchrom = chrom + '_part2'
                 newstart = str(start - limit)
                 newend = str(end - limit)
@@ -136,6 +144,9 @@ def gff_conv(intervals):
     """Convert GFF."""
     with open(intervals, 'r') as f:
         for line in f:
+            if line.startswith('#'):
+                print line.strip()
+                continue
             tmp = line.strip().split()
             chrom = tmp[0]
             start = int(tmp[3])
@@ -144,7 +155,11 @@ def gff_conv(intervals):
                 sys.stderr.write(chrom + ' not reconized. The chromosomes must be named like \'chr1H.\'\n')
                 return
             limit = PARTS_SIZES[chrom]
-            if start > limit and end > limit:
+            if chrom == 'ChrUn' or chrom == 'Pt':
+                newchrom = chrom
+                newstart = str(start)
+                newend = str(end)
+            elif start > limit and end > limit:
                 newchrom = chrom + '_part2'
                 newstart = str(start - limit)
                 newend = str(end - limit)
@@ -170,7 +185,11 @@ def reg_conv(intervals):
             chrom = tmp[0]
             start, end = [int(i) for i in tmp[1].split('-')]
             limit = PARTS_SIZES[chrom]
-            if start > limit and end > limit:
+            if chrom == 'ChrUn' or chrom == 'Pt':
+                newchrom = chrom
+                newstart = str(start)
+                newend = str(end)
+            elif start > limit and end > limit:
                 newchrom = chrom + '_part2'
                 newstart = str(start - limit)
                 newend = str(end - limit)
