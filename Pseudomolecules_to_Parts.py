@@ -13,7 +13,8 @@ PARTS_SIZES = {
     'chr4H': 355061206,
     'chr5H': 380865482,
     'chr6H': 294822070,
-    'chr7H': 325797516
+    'chr7H': 325797516,
+    'chrUn': 249774706
     }
 
 
@@ -86,8 +87,12 @@ def vcf_conv(intervals):
                 # Check the parts lengths. If the position is greater than the
                 # part1 length, then subtract the part1 length, and change the
                 # name to part2
+                # Also passing 'chrUn' unchanged, as there is only 1 part
                 limit = PARTS_SIZES[chrom]
-                if pos > limit:
+                if chrom == 'chrUn':
+                    newchrom = chrom
+                    newpos = str(pos)
+                elif pos > limit:
                     newchrom = chrom + '_part2'
                     newpos = str(pos - limit)
                 else:
