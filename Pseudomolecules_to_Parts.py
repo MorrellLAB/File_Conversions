@@ -43,6 +43,11 @@ def parse_args():
         action='store_true',
         help='Input file is GFF')
     fmt.add_argument(
+        '--gtf',
+        '-t',
+        action='store_true',
+        help='Input file is GTF')
+    fmt.add_argument(
         '--reg',
         '-r',
         action='store_true',
@@ -64,6 +69,8 @@ def set_format(args):
         return 'BED'
     elif arg_dict['gff']:
         return 'GFF'
+    elif arg_dict['gtf']:
+        return 'GTF'
     elif arg_dict['reg']:
         return 'REG'
     else:
@@ -173,6 +180,35 @@ def gff_conv(intervals):
             print '\t'.join([newchrom, tmp[1], tmp[2], newstart, newend] + tmp[5:])
     return
 
+def gtf_conv(intervals):
+    """Convert GFF."""
+    with open(intervals, 'r') as f:
+        for line in f:
+            tmp = line.strip().split()
+            chrom = tmp[0]
+            start = int(tmp[3])
+            end = int(tmp[4])
+            if chrom not in PARTS_SIZES:
+                sys.stderr.write(chrom + ' not reconized. The chromosomes must be named like \'chr1H.\'\n')
+                return
+            limit = PARTS_SIZES[chrom]
+            if chrom == 'ChrUn' or chrom == 'Pt':
+                newchrom = chrom
+                newstart = str(start)
+                newend = str(end)
+            elif start > limit and end > limit:
+                newchrom = chrom + '_part2'
+                newstart = str(start - limit)
+                newend = str(end - limit)
+            elif start+1 <= limit and end+1 > limit:
+                sys.stderr.write('Interval ' + line.strip() + ' spans parts, omitting.\n')
+                continue
+            else:
+                newchrom = chrom + '_part1'
+                newstart = str(start)
+                newend = str(end)
+            print '\t'.join([newchrom, tmp[1], tmp[2], newstart, newend] + tmp[5:])
+    return
 
 def reg_conv(intervals):
     """Convert SAM region."""
@@ -215,6 +251,8 @@ def main():
         bed_conv(args.intervals)
     elif f == 'GFF':
         gff_conv(args.intervals)
+    elif f == 'GTF':
+        gtf_conv(args.intervals)
     elif f == 'REG':
         reg_conv(args.intervals)
     else:
