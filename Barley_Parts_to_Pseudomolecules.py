@@ -1,21 +1,23 @@
-#!/usr/bin/env python
-"""A simple script to convert the pseudomolecule parts VCF files into full
-pseudomolecule VCF files. Remember that VCF is 1-based, which makes the math
+#!/usr/bin/env python3
+"""A simple script to convert the pseudomolecule parts into full
+pseudomolecules. Remember that VCF is 1-based, which makes the math
 a lot nicer."""
 
 import sys
+import argparse
 
-#   Store the lengths of the pseudomolecule parts in a dictionary. We only
+#   Store the lengths of the barley pseudomolecule parts in a dictionary. We only
 #   really need to store the first parts, since we will just add the part2
 #   positions to it.
-part_lengths = {
-    'chr1H_part1': 312837513,
-    'chr2H_part1': 393532674,
-    'chr3H_part1': 394310633,
-    'chr4H_part1': 355061206,
-    'chr5H_part1': 380865482,
-    'chr6H_part1': 294822070,
-    'chr7H_part1': 325797516
+#   Sizes listed below are for Morex v2
+PARTS_SIZES = {
+    'chr1H_part1': 205502676,
+    'chr2H_part1': 305853815,
+    'chr3H_part1': 271947776,
+    'chr4H_part1': 282386439,
+    'chr5H_part1': 205989812,
+    'chr6H_part1': 260041240,
+    'chr7H_part1': 328847863
     }
 
 #   Then iterate through the VCF and print out the modified lines
