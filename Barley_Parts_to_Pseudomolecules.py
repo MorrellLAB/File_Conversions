@@ -65,7 +65,7 @@ def vcf_conv(intervals, parts_sizes):
     Handles both VCF and gzipped VCFs."""
     if '.gz' in intervals:
         # If lines start with '#', print them
-        with gzip.open(intervals, 'r') as f:
+        with gzip.open(intervals, 'rt') as f:
             for line in f:
                 if line.startswith('#'):
                     print(line.strip())
