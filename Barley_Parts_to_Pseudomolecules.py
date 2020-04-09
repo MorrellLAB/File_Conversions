@@ -3,6 +3,7 @@
 pseudomolecules."""
 
 import argparse
+import gzip
 
 #   Store the lengths of the barley pseudomolecule parts in a dictionary. We only
 #   really need to store the first parts, since we will just add the part2
@@ -31,7 +32,7 @@ def parse_args():
         '--vcf',
         '-v',
         action='store_true',
-        help='Input file is VCF'
+        help='Input file is VCF or VCF.gz'
     )
     fmt.add_argument(
         '--bed',
@@ -60,27 +61,50 @@ def set_format(args):
 
 
 def vcf_conv(intervals, parts_sizes):
-    """Convert VCF. Remember that VCF is 1-based, which makes the math a lot nicer."""
-    # If lines start with '#', print them
-    with open(intervals, 'r') as f:
-        for line in f:
-            if line.startswith('#'):
-                print(line.strip())
-            else:
-                tmp = line.strip().split()
-                # modify the chromosome to not have the part
-                chrom = tmp[0].split('_')[0]
-                # And check if we have to modify the position. If the chromosome
-                # name has '_part2' in it, then we have to modify it.
-                if '_part2' in tmp[0]:
-                    offset = parts_sizes[chrom + '_part1']
-                    newpos = str(int(tmp[1]) + offset)
+    """Convert VCF. Remember that VCF is 1-based, which makes the math a lot nicer.
+    Handles both VCF and gzipped VCFs."""
+    if '.gz' in intervals:
+        # If lines start with '#', print them
+        with gzip.open(intervals, 'r') as f:
+            for line in f:
+                if line.startswith('#'):
+                    print(line.strip())
                 else:
-                    newpos = tmp[1]
-                # then print out the VCF line with the new position and chromosome
-                # name
-                toprint = [chrom, newpos] + tmp[2:]
-                print('\t'.join(toprint))
+                    tmp = line.strip().split()
+                    # modify the chromosome to not have the part
+                    chrom = tmp[0].split('_')[0]
+                    # And check if we have to modify the position. If the chromosome
+                    # name has '_part2' in it, then we have to modify it.
+                    if '_part2' in tmp[0]:
+                        offset = parts_sizes[chrom + '_part1']
+                        newpos = str(int(tmp[1]) + offset)
+                    else:
+                        newpos = tmp[1]
+                    # then print out the VCF line with the new position and chromosome
+                    # name
+                    toprint = [chrom, newpos] + tmp[2:]
+                    print('\t'.join(toprint))
+    else:
+        # If lines start with '#', print them
+        with open(intervals, 'r') as f:
+            for line in f:
+                if line.startswith('#'):
+                    print(line.strip())
+                else:
+                    tmp = line.strip().split()
+                    # modify the chromosome to not have the part
+                    chrom = tmp[0].split('_')[0]
+                    # And check if we have to modify the position. If the chromosome
+                    # name has '_part2' in it, then we have to modify it.
+                    if '_part2' in tmp[0]:
+                        offset = parts_sizes[chrom + '_part1']
+                        newpos = str(int(tmp[1]) + offset)
+                    else:
+                        newpos = tmp[1]
+                    # then print out the VCF line with the new position and chromosome
+                    # name
+                    toprint = [chrom, newpos] + tmp[2:]
+                    print('\t'.join(toprint))
 
 
 def bed_conv(intervals, parts_sizes):
