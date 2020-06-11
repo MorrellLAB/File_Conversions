@@ -6,6 +6,7 @@ import argparse
 
 
 # define the length of the part1 pieces as a dictionary constant.
+# Sizes listed below are for Morex v2 including plastids
 PARTS_SIZES = {
     'chr1H': 205502676,
     'chr2H': 305853815,
