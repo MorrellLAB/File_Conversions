@@ -181,7 +181,23 @@ def gff_conv(intervals, parts_sizes):
     with open(intervals, 'r') as f:
         for line in f:
             if line.startswith('#'):
-                print(line.strip())
+                if line.startswith('##sequence-region'):
+                    tmp_header = line.strip().split()
+                    curr_chrom = tmp_header[1]
+                    start_pos = tmp_header[2]
+                    end_pos = tmp_header[3]
+                    if curr_chrom != "chrUn":
+                        # Generate ##sequence-region header for split parts
+                        curr_part1_size = parts_sizes[curr_chrom]
+                        # Print part1
+                        print(tmp_header[0], "   ", curr_chrom + '_part1 ', str(start_pos), ' ', str(curr_part1_size))
+                        # Print part2
+                        print(tmp_header[0], "   ", curr_chrom + '_part2 ', str(curr_part1_size + 1), ' ', str(end_pos))
+                    else:
+                        # chrUn usually isn't split
+                        print(line.strip())
+                else:
+                    print(line.strip())
                 continue
             tmp = line.strip().split()
             chrom = tmp[0]
