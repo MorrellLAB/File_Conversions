@@ -200,7 +200,7 @@ def gff_conv(intervals, parts_sizes):
                 else:
                     print(line.strip())
                 continue
-            tmp = line.strip().split()
+            tmp = line.strip().split('\t')
             chrom = tmp[0]
             start = int(tmp[3])
             end = int(tmp[4])
