@@ -158,7 +158,7 @@ def bed_conv(intervals, parts_sizes):
             # Check the coordinates of the start and stop positions with respect
             # to the part1 boundary
             limit = parts_sizes[chrom]
-            if chrom == 'ChrUn' or chrom == 'Pt':
+            if chrom == 'chrUn' or chrom == 'Pt':
                 newchrom = chrom
                 newstart = str(start)
                 newend = str(end)
@@ -208,7 +208,7 @@ def gff_conv(intervals, parts_sizes):
                 sys.stderr.write(chrom + ' not reconized. The chromosomes must be named like \'chr1H.\'\n')
                 return
             limit = parts_sizes[chrom]
-            if chrom == 'ChrUn' or chrom == 'Pt':
+            if chrom == 'chrUn' or chrom == 'Pt':
                 newchrom = chrom
                 newstart = str(start)
                 newend = str(end)
@@ -238,7 +238,7 @@ def gtf_conv(intervals, parts_sizes):
                 sys.stderr.write(chrom + ' not reconized. The chromosomes must be named like \'chr1H.\'\n')
                 return
             limit = parts_sizes[chrom]
-            if chrom == 'ChrUn' or chrom == 'Pt':
+            if chrom == 'chrUn' or chrom == 'Pt':
                 newchrom = chrom
                 newstart = str(start)
                 newend = str(end)
@@ -267,7 +267,7 @@ def reg_conv(intervals, parts_sizes):
             chrom = tmp[0]
             start, end = [int(i) for i in tmp[1].split('-')]
             limit = parts_sizes[chrom]
-            if chrom == 'ChrUn' or chrom == 'Pt':
+            if chrom == 'chrUn' or chrom == 'Pt':
                 newchrom = chrom
                 newstart = str(start)
                 newend = str(end)
