@@ -8,15 +8,15 @@ import gzip
 #   Store the lengths of the barley pseudomolecule parts in a dictionary. We only
 #   really need to store the first parts, since we will just add the part2
 #   positions to it.
-#   Sizes listed below are for Morex v2
+#   Sizes listed below are for Morex v3
 PARTS_SIZES = {
-    'chr1H_part1': 205502676,
-    'chr2H_part1': 305853815,
-    'chr3H_part1': 271947776,
-    'chr4H_part1': 282386439,
-    'chr5H_part1': 205989812,
-    'chr6H_part1': 260041240,
-    'chr7H_part1': 328847863
+    'chr1H_part1': 206486643,
+    'chr2H_part1': 301293086,
+    'chr3H_part1': 267852507,
+    'chr4H_part1': 276149121,
+    'chr5H_part1': 204878572,
+    'chr6H_part1': 256319444,
+    'chr7H_part1': 328847192
     }
 
 def parse_args():
