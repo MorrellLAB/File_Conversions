@@ -8,16 +8,47 @@ import gzip
 #   Store the lengths of the barley pseudomolecule parts in a dictionary. We only
 #   really need to store the first parts, since we will just add the part2
 #   positions to it.
-#   Sizes listed below are for Morex v3
-PARTS_SIZES = {
-    'chr1H_part1': 206486643,
-    'chr2H_part1': 301293086,
-    'chr3H_part1': 267852507,
-    'chr4H_part1': 276149121,
-    'chr5H_part1': 204878572,
-    'chr6H_part1': 256319444,
-    'chr7H_part1': 328847192
+# Define the length of the part1 pieces as a dictionary constant.
+# Morex v1 sizes
+PARTS_SIZES_V1 = {
+    'chr1H': 312837513,
+    'chr2H': 393532674,
+    'chr3H': 394310633,
+    'chr4H': 355061206,
+    'chr5H': 380865482,
+    'chr6H': 294822070,
+    'chr7H': 325797516,
+    'chrUn': 249774706,
+    'Pt': 999999999999
     }
+# Morex v2 sizes including plastids
+PARTS_SIZES_V2 = {
+    'chr1H': 205502676,
+    'chr2H': 305853815,
+    'chr3H': 271947776,
+    'chr4H': 282386439,
+    'chr5H': 205989812,
+    'chr6H': 260041240,
+    'chr7H': 328847863,
+    'chrUn': 85026395,
+    'EF115541.1': 136462,
+    'AP017301.1': 525599,
+    'Pt': 999999999999
+    }
+# Morex v3 sizes
+PARTS_SIZES_V3 = {
+    'chr1H': 206486643,
+    'chr2H': 301293086,
+    'chr3H': 267852507,
+    'chr4H': 276149121,
+    'chr5H': 204878572,
+    'chr6H': 256319444,
+    'chr7H': 328847192,
+    'chrUn': 29110253,
+    'EF115541.1': 136462,
+    'AP017301.1': 525599,
+    'Pt': 999999999999
+}
 
 def parse_args():
     """Set up an argument parser, and actually parse the args."""
@@ -45,6 +76,10 @@ def parse_args():
         metavar='file',
         help='File with intervals to convert'
     )
+    parser.add_argument(
+        'ref_version',
+        metavar='reference_version',
+        help='Input is one of the following: morex_v1, morex_v2, morex_v3')
     a = parser.parse_args()
     return a
 
@@ -76,7 +111,8 @@ def vcf_conv(intervals, parts_sizes):
                     # And check if we have to modify the position. If the chromosome
                     # name has '_part2' in it, then we have to modify it.
                     if '_part2' in tmp[0]:
-                        offset = parts_sizes[chrom + '_part1']
+                        #offset = parts_sizes[chrom + '_part1']
+                        offset = parts_sizes[chrom]
                         newpos = str(int(tmp[1]) + offset)
                     else:
                         newpos = tmp[1]
@@ -97,7 +133,8 @@ def vcf_conv(intervals, parts_sizes):
                     # And check if we have to modify the position. If the chromosome
                     # name has '_part2' in it, then we have to modify it.
                     if '_part2' in tmp[0]:
-                        offset = parts_sizes[chrom + '_part1']
+                        #offset = parts_sizes[chrom + '_part1']
+                        offset = parts_sizes[chrom]
                         newpos = str(int(tmp[1]) + offset)
                     else:
                         newpos = tmp[1]
@@ -122,7 +159,8 @@ def bed_conv(intervals, parts_sizes):
                 # And check if we have to modify the position. If the chromosome
                 # name has '_part2' in it, then we have to modify it.
                 if '_part2' in tmp[0]:
-                    offset = parts_sizes[chrom + '_part1']
+                    #offset = parts_sizes[chrom + '_part1']
+                    offset = parts_sizes[chrom]
                     newstartpos = str(int(tmp[1]) + offset)
                     newendpos = str(int(tmp[2]) + offset)
                 else:
@@ -147,6 +185,17 @@ def main():
     """Driver function."""
     args = parse_args()
     f = set_format(args)
+    # Check which version of the Morex reference we are using
+    if args.ref_version == "morex_v1":
+        PARTS_SIZES = PARTS_SIZES_V1
+    elif args.ref_version == "morex_v2":
+        PARTS_SIZES = PARTS_SIZES_V2
+    elif args.ref_version == "morex_v3":
+        PARTS_SIZES = PARTS_SIZES_V3
+    else:
+        print('Invalid reference version provided, valid options are: morex_v1, morex_v2, morex_v3')
+        exit(1)
+    
     # Then, use the format and the supplied file to convert the coordinates
     if f == 'VCF':
         vcf_conv(args.intervals, PARTS_SIZES)
