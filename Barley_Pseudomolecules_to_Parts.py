@@ -164,7 +164,7 @@ def bed_conv(intervals, parts_sizes):
                 newchrom = chrom
                 newstart = str(start)
                 newend = str(end)
-            elif start+1 > limit and end+1 > limit:
+            elif (start + 1) > limit and (end + 1) > limit:
                 newchrom = chrom + '_part2'
                 newstart = str(start - limit)
                 newend = str(end - limit)
