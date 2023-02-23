@@ -3,6 +3,8 @@
 
 import sys
 import argparse
+import cyvcf2
+from cyvcf2 import VCF
 
 
 # Define the length of the part1 pieces as a dictionary constant.
@@ -110,36 +112,117 @@ def set_format(args):
 
 
 def vcf_conv(intervals, parts_sizes):
-    """Convert VCF."""
+    """Convert VCF. Works for both GATK vcfs and larger SVs with "INFO/END" field
+    from callers like Sniffles2, cuteSV, Longranger."""
     # If lines start with '#', print them
-    with open(intervals, 'r') as f:
-        for line in f:
-            if line.startswith('#'):
-                print(line.strip())
+    vcf = VCF(intervals)
+    # Print header lines to stdout
+    # Update header with new chromosome part names and lengths
+    for l in vcf.raw_header.strip('\n').split('\n'):
+        if l.startswith('##contig'):
+            if 'chrUn' in l or 'EF115541.1' in l or 'AP017301.1' in l:
+                # Print as is, no modifications needed
+                print(l)
             else:
-                tmp = line.strip().split()
-                chrom = tmp[0]
-                pos = int(tmp[1])
-                # Check that the chromosomes are named as we are expecting
-                if chrom not in parts_sizes:
-                    sys.stderr.write(chrom + ' not reconized. The chromosomes must be named like \'chr1H.\'\n')
-                    return
-                # Check the parts lengths. If the position is greater than the
-                # part1 length, then subtract the part1 length, and change the
-                # name to part2
-                # Also passing 'chrUn' unchanged, as there is only 1 part
-                limit = parts_sizes[chrom]
-                if chrom == 'chrUn' or chrom == 'Pt':
-                    newchrom = chrom
-                    newpos = str(pos)
-                elif pos > limit:
-                    newchrom = chrom + '_part2'
-                    newpos = str(pos - limit)
-                else:
-                    newchrom = chrom + '_part1'
-                    newpos = str(pos)
-                print('\t'.join([newchrom, newpos] + tmp[2:]))
-    return
+                # Split into chromosome parts
+                contig = l.split('=')
+                chrom_len = contig[3].strip('>')
+                chrom_list = contig[2].split(',')
+                # Prepare new chromosome parts names
+                chrom_part1_name = chrom_list[0] + '_part1'
+                chrom_part2_name = chrom_list[0] + '_part2'
+                # Get new parts chromosome lengths
+                chrom_part1_len = parts_sizes[chrom_list[0]]
+                chrom_part2_len = int(chrom_len) - int(chrom_part1_len)
+                # Check if chromosome parts lengths add up correctly
+                if str(chrom_part1_len + chrom_part2_len) == str(chrom_len):
+                    # Prepare updated contig header lines
+                    # Each chromosome header line should get split into two parts
+                    print('='.join([contig[0], contig[1], chrom_part1_name + ',length', str(chrom_part1_len) + '>']))
+                    print('='.join([contig[0], contig[1], chrom_part2_name + ',length', str(chrom_part2_len) + '>']))
+        else:
+            print(l)
+    # Check if we have INFO/END field present in the VCF
+    # If so, we'll need to pull the end position from the END field
+    # This is a larger SV with the end position in the INFO/END field
+    # (e.g., output from callers like Sniffles2, cuteSV, and Longranger)
+    if vcf.contains("END"):
+        for variant in vcf:
+            chrom = variant.CHROM
+            start_pos = variant.POS
+            # Position in INFO/END field
+            end_pos = variant.INFO["END"]
+            # Check that the chromosomes are named as we are expecting
+            if chrom not in parts_sizes:
+                sys.stderr.write(chrom + ' not recognized. The chromosomes must be named like \'chr1H.\'\n')
+                return
+            # Check the parts lengths. If the position is greater than the
+            # part1 length, then subtract the part1 length, and change the
+            # name to part2
+            # Also passing 'chrUn' unchanged, as there is only 1 part
+            limit = parts_sizes[chrom]
+            if chrom == 'chrUn' or chrom == 'Pt':
+                # No changes made, print as is
+                print(str(variant).strip('\n'))
+            elif start_pos > limit and end_pos > limit:
+                # This is important, otherwise conversion for records that span
+                # both chrom parts will be incorrect
+                # Modify in current record
+                # New chromosome name
+                variant.CHROM = newchrom = chrom + '_part2'
+                # New start position
+                variant.set_pos(start_pos - limit)
+                # New end position
+                variant.INFO["END"] = end_pos - limit
+                # Print modified record to stdout
+                print(str(variant).strip('\n'))
+            elif start_pos < limit and end_pos <= limit:
+                # Modify in current record
+                # New chromosome name
+                variant.CHROM = chrom + '_part1'
+                # Print modified record to stdout
+                print(str(variant).strip('\n'))
+            elif start_pos <= limit and end_pos > limit:
+                # Record spans both chrom parts, exit with error
+                sys.stderr.write(chrom + ':' + str(start_pos) + '-' + str(end_pos) + ' spans chrom parts, please check manually before proceeding.\n')
+                return
+            else:
+                sys.stderr.write(chrom + ':' + str(start_pos) + '-' + str(end_pos) + ' is an edge case that is not dealt with properly, please check manually and modify code if necessary before proceeding.\n')
+                return
+    else:
+        # no INFO/END field present (e.g., vcf output from GATK)
+        for variant in vcf:
+            chrom = variant.CHROM
+            pos = variant.POS
+            # Check that the chromosomes are named as we are expecting
+            if chrom not in parts_sizes:
+                sys.stderr.write(chrom + ' not recognized. The chromosomes must be named like \'chr1H.\'\n')
+                return
+            # Check the parts lengths. If the position is greater than the
+            # part1 length, then subtract the part1 length, and change the
+            # name to part2
+            # Also passing 'chrUn' unchanged, as there is only 1 part
+            limit = parts_sizes[chrom]
+            if chrom == 'chrUn' or chrom == 'Pt':
+                # No changes made, print as is
+                print(str(variant).strip('\n'))
+            elif pos > limit:
+                # Modify in current record
+                # New chromosome name
+                variant.CHROM = newchrom = chrom + '_part2'
+                # New start position
+                variant.set_pos(pos - limit)
+                # Print modified record to stdout
+                print(str(variant).strip('\n'))
+            elif pos <= limit:
+                # Modify in current record
+                # New chromosome name
+                variant.CHROM = chrom + '_part1'
+                # Print modified record to stdout
+                print(str(variant).strip('\n'))
+            else:
+                sys.stderr.write(chrom + ':' + str(start_pos) + '-' + str(end_pos) + ' is an edge case that is not dealt with properly, please check manually and modify code if necessary before proceeding.\n')
+                return
 
 
 def bed_conv(intervals, parts_sizes):
