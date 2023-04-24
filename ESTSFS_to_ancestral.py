@@ -71,5 +71,5 @@ def SecondParse(vcf_file, ESTSFSFILE, output_file):
 
 vcf_file = sys.argv[1] #system input commands
 ESTSFSFILE = sys.argv[2]
-output_file = sys.argv[3] 
+output_file = sys.argv[3]
 SecondParse(vcf_file, ESTSFSFILE, output_file)
