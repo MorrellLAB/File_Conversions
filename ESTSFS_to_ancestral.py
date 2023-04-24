@@ -59,7 +59,7 @@ def SecondParse(vcf_file, ESTSFSFILE, output_file):
 
          
                     Probability_Percentage = abs((float(Parsed_ESTSFS[2]) *100)) # calculates the probabilty of the ancestral  
-                    Final_parsed_string = (VCF_metadata[i][0] + " " + str(VCF_metadata[i][1] + 1) + " " + str(VCF_metadata[i][6]) +str(VCF_metadata[i][3]) + " " +str(VCF_metadata[i][4]) + " " + 'AA=' + "'" +str(Ancestrial_allele) + "'" + " " + str(Probability_Percentage) + '\n') # output string
+                    Final_parsed_string = (VCF_metadata[i][0] + " " + str(VCF_metadata[i][1] + 1) + " " +str(VCF_metadata[i][3]) + " " +str(VCF_metadata[i][4]) + " " + 'AA=' + "'" +str(Ancestrial_allele) + "'" + " " + str(Probability_Percentage) + '\n') # output string
                     j += 1
                     outfile.write(Final_parsed_string) #writes final_pasrsed_string to a new file
                     i += 1
