@@ -3,11 +3,11 @@ import gzip
 import sys
 
 
-def SecondParse(vcf_file, ESTSFSFILE, output_file):
-
-    #GZIPPED VCF FILES CURRENTLY DO NOT WORK
+def SecondParse(vcf_file, ESTSFSFILE, output_file, Probabilitypercentagethreshold):
+    #Ancestral allele is original state of nucleotide positon
+    #Alternate allele: is the varient found in the reference genome: Reference allele: the state that is found in the reference genome
     
-
+    #GZIPPED VCF FILES CURRENTLY DO NOT WORK
 
     vcf_file = gzip.open(vcf_file, 'rb') if vcf_file.endswith('.gz') else open(vcf_file, 'r') #parses VCF file
     vcf_reader = vcf.Reader(vcf_file)
@@ -28,7 +28,7 @@ def SecondParse(vcf_file, ESTSFSFILE, output_file):
     with open(ESTSFSFILE, "r") as fp1: #opens EST-sfs file and parses data
         with open(output_file, "w") as outfile:
             testfile = fp1.read().splitlines()  
-            Ancestrial_allele = "0" #zero in case Missing data.
+            Minor_or_Major_allele = "0" #zero in case Missing data.
             i = 0  
             for j in range(len(VCF_metadata)):  
                 AC = 0 #initializes AC value
@@ -53,23 +53,33 @@ def SecondParse(vcf_file, ESTSFSFILE, output_file):
                         NS = 0
 
                     if (AC) >= NS/2:  #if AC is larger than NS/2 ancestral is AC
-                        Ancestrial_allele = VCF_metadata[i][4]
+                        Minor_or_Major_allele = VCF_metadata[i][4]
                     else: (AC) <= NS/2 # if NS/2 is larger than AC ancestral is NS
-                    Ancestrial_allele = VCF_metadata[i][3]
+                    Minor_or_Major_allele = VCF_metadata[i][3] #Major allele is the most common, Minor is least common.
 
          
                     Probability_Percentage = abs((float(Parsed_ESTSFS[2]) *100)) # calculates the probabilty of the ancestral  
-                    Final_parsed_string = (VCF_metadata[i][0] + " " + str(VCF_metadata[i][1] + 1) + " " +str(VCF_metadata[i][3]) + " " +str(VCF_metadata[i][4]) + " " + 'AA=' + "'" +str(Ancestrial_allele) + "'" + " " + str(Probability_Percentage) + '\n') # output string
-                    j += 1
-                    outfile.write(Final_parsed_string) #writes final_pasrsed_string to a new file
+                   
+
+
+                    if Probability_Percentage > Probabilitypercentagethreshold:
+                        Final_parsed_string = (VCF_metadata[i][0] + " " + str(VCF_metadata[i][1] + 1) + " "  +str(VCF_metadata[i][3]) + " " +str(VCF_metadata[i][4]) + " " + 'AA=' + "'" +str(Minor_or_Major_allele) + "'" + " " + str(Probability_Percentage/100) + '\n') # output string
+                        j += 1
+                        outfile.write(Final_parsed_string) #writes final_pasrsed_string to a new file
+                    elif Probability_Percentage < Probabilitypercentagethreshold:
+                        Probability_Percentage =  abs(100 -Probability_Percentage) 
+                        Final_parsed_string = (VCF_metadata[i][0] + " " + str(VCF_metadata[i][1] + 1) + " "  +str(VCF_metadata[i][3]) + " " +str(VCF_metadata[i][4]) + " " + 'AA=' + "'" +str(Minor_or_Major_allele) + "'" + " " + str(Probability_Percentage/100) + '\n') # output string
+                        j += 1
+                        outfile.write(Final_parsed_string) #writes final_pasrsed_string to a new file if major allele is not most prevelent 
                     i += 1
                 else:
                     j += 1
 
 
 #GZIPPED VCF FILES CURRENTLY DO NOT WORK
-
-vcf_file = sys.argv[1] #system input commands
+vcf_file = sys.argv[1]
 ESTSFSFILE = sys.argv[2]
 output_file = sys.argv[3]
-SecondParse(vcf_file, ESTSFSFILE, output_file)
+Probabilitypercentagethreshold = 50
+
+SecondParse(vcf_file, ESTSFSFILE, output_file, Probabilitypercentagethreshold)
