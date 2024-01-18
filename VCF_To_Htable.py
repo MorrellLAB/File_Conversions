@@ -1,9 +1,14 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #   A python program to read in a VCF file and output a Hudson table-like
 #   format. Not "true" Hudson table, since hets are not handled properly.
 #   Usage:
 #       VCF_To_Htable.py [VCF file] > [Htable.txt]
+#   Peter L. Morrell - updated 18 Jan 2023 - 1) now Python3, 2) has only distance in
+#   header and not chromosome name, 3) now displays "haploid" data with only
+#   first base of each genotype printed. Still need to deal with phased genotypes where
+#   "0|1" or "1|1" can appear rather than "0/1" or "1/1". 
+
 
 import sys
 #   If the "minor genotype frequency" falls below this threshhold, then we
@@ -49,7 +54,7 @@ with open(sys.argv[1], 'r') as f:
             tmp = line.strip().split('\t')
             #   assign the variables for clarity
             scaffold = tmp[0]
-            pos = tmp[1]
+            locus = tmp[1]
             var_id = tmp[2]
             ref_allele = tmp[3]
             #   If there are multiple alternate alleles, they are listed with a comma between them
@@ -61,7 +66,7 @@ with open(sys.argv[1], 'r') as f:
             #   And then the genotypes
             genotypes = tmp[9:]
             #   The locus will be the scaffold number and then the bp position
-            locus = scaffold + '_' + pos
+            #locus = scaffold + '_' + pos
             #   then we parse the genotypes
             #   we create a list here that will be a single column of the genotype matrix
             g_column = []
@@ -71,7 +76,7 @@ with open(sys.argv[1], 'r') as f:
                 #   These are diploid calls, and we are assuming they are unphased
                 #   the are listed in the form allele1/allele2
                 #   with 0 = ref, 1 = alt1, 2 = alt2, and so on...
-                alleles = call.split('/')
+                alleles = call.split('/')[0]       
                 individual_call = ''
                 for x in alleles:
                     if x == '.':
@@ -103,11 +108,11 @@ with open(sys.argv[1], 'r') as f:
 #   Now, we have to transpose the genotype matrix
 g_matrix_t = zip(*g_matrix)
 #   print the number of samples and the number of loci
-print str(len(samples)) + '\t' + str(len(loci))
+print (str(len(samples)) + '\t' + str(len(loci)))
 #   print the loci
-print '\t' + '\t'.join(loci)
+print ('\t' + '\t'.join(loci))
 #   Print the line for unknown ancestral state
-print 'anc\t' + '?\t'*(len(loci)-1) + '?'
+print ('anc\t' + '?\t'*(len(loci)-1) + '?')
 #   then print the transposed genotype matrix
 for index, g in enumerate(g_matrix_t):
-    print samples[index] + '\t' + '\t'.join(g)
+    print (samples[index] + '\t' + '\t'.join(g))
