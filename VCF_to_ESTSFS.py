@@ -1,9 +1,7 @@
-#!/usr/bin/env python3 
+#!/usr/bin/python3 
 
 """Convert a VCF and BED files with genotype information for outgroup samples into input for est-sfs.
 The primary dependency is the  PyVCF library for VCF parsing.
-
-
 """  
 
 import vcf
@@ -21,19 +19,19 @@ def est_vcf_convert(bed_file1, bed_file2, vcf_file, output_file, bed_file3=None)
     6 -alternate allele
     7 -allele present at the position in and outgroup sample
     8 -dependencies VCF, gzip, sys 
-    The BED files need to provided in order so that outgroup samples most closely
+    The BED files need to be provided in order so that outgroup samples most closely
     related to the focal species appear earlier (farther left in file order).
     Outputs are designed for input for ancestral state inference in EST-SFS
     and a VCF compatible file'''
 
-    # GZIPED VCF FILES CURRENTLY DO NOT WORK
+    # GZIPPED VCF FILES CURRENTLY DO NOT WORK
 
     bed_file1 = gzip.open(bed_file1, 'rt') if bed_file1.endswith('.gz') else open(bed_file1, 'r')  # checks if gzipped then opens the file
     bed_file2 = gzip.open(bed_file2, 'rt') if bed_file2.endswith('.gz') else open(bed_file2, 'r')  # checks if gzipped then opens the file
     if bed_file3:
         bed_file3 = gzip.open(bed_file3, 'rt') if bed_file3.endswith('.gz') else open(bed_file3, 'r')  # checks if gzipped then opens the file
 
-    #  GZIPED VCF FILES CURRENTLY DO NOT WORK        
+    #  GZIPPED VCF FILES CURRENTLY DO NOT WORK        
     vcf_file = gzip.open(vcf_file, 'r') if vcf_file.endswith('.gz') else open(vcf_file, 'r')  # checks if gzipped then opens the file
 
     with bed_file1 as f1, bed_file2 as f2:  # splits the bedfiles by white space
@@ -85,8 +83,8 @@ def est_vcf_convert(bed_file1, bed_file2, vcf_file, output_file, bed_file3=None)
             ReferencealleleFreq =  ((int(calcNS)*2) +  (int(-calcAC)))//2  # calculates Reference allele frequency 
             Alternateallelefreq =  int(calcAC)//2  # calculates alternate allele frequency 
 
-            reference_allele = str(VCF_metadata[i][4])  # extracts ref allele from from inputted VCF file
-            alternate_allele = str(VCF_metadata[i][3])  # extracts ref allele from from inputted VCF file
+            reference_allele = str(VCF_metadata[i][4])  # extracts ref allele from input VCF file
+            alternate_allele = str(VCF_metadata[i][3])  # extracts ref allele from input VCF file
             genotypesReference = nucleotide_ref_binary.get(reference_allele, [0,0,0,0])
             genotypesReference = list(map(lambda x: x * Alternateallelefreq, genotypesReference))  # assigns the values to a binary representation 
 
