@@ -1,13 +1,20 @@
+#!/usr/bin/python3
+
+#   Script by Jacob Pacheco to convert the output of est-sfs
+#   [doi:10.1534/genetics.118.301120] into inferred ancestral state.
+#   Should be suitable for anotation of a VCF or creating a list of
+#   ancestral state for a list of SNPs.
+
 import vcf
 import gzip
 import sys
 
 
 def SecondParse(vcf_file, ESTSFSFILE, output_file, Probabilitypercentagethreshold):
-    #Ancestral allele is original state of nucleotide positon
-    #Alternate allele: is the varient found in the reference genome: Reference allele: the state that is found in the reference genome
-    
-    #GZIPPED VCF FILES CURRENTLY DO NOT WORK
+    #  Ancestral allele is original state of nucleotide positon
+    #  Alternate allele: also the derived allele, is a variant: 
+    #  Reference allele: the state that is found in the reference genome
+    #  GZIPPED VCF FILES CURRENTLY DO NOT WORK
 
     vcf_file = gzip.open(vcf_file, 'rb') if vcf_file.endswith('.gz') else open(vcf_file, 'r') #parses VCF file
     vcf_reader = vcf.Reader(vcf_file)
@@ -70,7 +77,7 @@ def SecondParse(vcf_file, ESTSFSFILE, output_file, Probabilitypercentagethreshol
                         Probability_Percentage =  abs(100 -Probability_Percentage) 
                         Final_parsed_string = (VCF_metadata[i][0] + " " + str(VCF_metadata[i][1] + 1) + " "  +str(VCF_metadata[i][3]) + " " +str(VCF_metadata[i][4]) + " " + 'AA=' + "'" +str(Minor_or_Major_allele) + "'" + " " + str(Probability_Percentage/100) + '\n') # output string
                         j += 1
-                        outfile.write(Final_parsed_string) #writes final_pasrsed_string to a new file if major allele is not most prevelent 
+                        outfile.write(Final_parsed_string) #writes final_pasrsed_string to a new file if major allele is not most prevalent 
                     i += 1
                 else:
                     j += 1
