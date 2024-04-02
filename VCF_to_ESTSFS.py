@@ -1,7 +1,8 @@
 #!/usr/bin/python3 
 
-"""Convert a VCF and BED files with genotype information for outgroup samples into input for est-sfs.
-The primary dependency is the  PyVCF library for VCF parsing.
+"""Convert a VCF and BED files with genotype information for outgroup samples 
+into input for est-sfs. The primary dependency is the  PyVCF library for VCF 
+parsing.
 """  
 
 import vcf
@@ -17,7 +18,7 @@ def est_vcf_convert(bed_file1, bed_file2, vcf_file, output_file, bed_file3=None)
     4 -SNP name (or ".")
     5 -reference allele
     6 -alternate allele
-    7 -allele present at the position in and outgroup sample
+    7 -allele present at the position in an outgroup sample
     8 -dependencies VCF, gzip, sys 
     The BED files need to be provided in order so that outgroup samples most closely
     related to the focal species appear earlier (farther left in file order).
@@ -101,14 +102,14 @@ def est_vcf_convert(bed_file1, bed_file2, vcf_file, output_file, bed_file3=None)
             bed_file2_split = bed_file2[i].split()
             BED_file2_binary_conversion = nucleotide_Base_binary.get(bed_file2_split[-1], "0,0,0,0")  # turns binary lists into binary strings.
 
-            if len(sys.argv) == 6:  # Uses this output if there were three bed files intputted
+            if len(sys.argv) == 6:  # Uses this output if there were three bed files in input
                 bed_file3_split = bed_file3[i].split()
                 BED_file3_binary_conversion = nucleotide_Base_binary.get(bed_file3_split[-1], "0,0,0,0")  # turns binary lists into binary strings.
                 converted_file = ((VCF_metadata[i][2]) + "\t" + (VCF_metadata[i][3]) + "\t" + str(VCF_metadata[i][4]) + "\t" + OutputAC + "\t"+ OutputNS + "\t" + bed_file1_split[-1] + "\t" + bed_file2_split[-1] + "\t" + bed_file3_split[-1] +  "\t") #String representation of VCF and Bed info
                 EST_SFS_VCF_compatible_file = (result_str + "\t" + BED_file1_binary_conversion + "\t" + BED_file2_binary_conversion + "\t" + BED_file3_binary_conversion + "\n") # adds binary info
                 outfile.write(converted_file +  EST_SFS_VCF_compatible_file)
 
-            if len(sys.argv) == 5:  # Uses this output if only two bedfiles were inputted
+            if len(sys.argv) == 5:  # Uses this output if only two bedfiles were in input
                 converted_file = ((VCF_metadata[i][2]) + "\t" + (VCF_metadata[i][3]) + "\t" + str(VCF_metadata[i][4]) + "\t" + OutputAC + "\t"+ OutputNS + "\t" + bed_file1_split[-1] + "\t" + bed_file2_split[-1] +  "\t") #String representation of VCF and Bed info
                 EST_SFS_VCF_compatible_file = (result_str + "\t" + BED_file1_binary_conversion + "\t" + BED_file2_binary_conversion + "\n")  # add binary info
                 outfile.write(converted_file +  EST_SFS_VCF_compatible_file)
