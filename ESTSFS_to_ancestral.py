@@ -65,13 +65,13 @@ def SecondParse(vcf_file, ESTSFSFILE, output_file, Probabilitypercentagethreshol
 
                     Probability_Percentage = abs(float(Parsed_ESTSFS[2]) * 100)  # calculates the probability of the ancestral
 
-                    if Probability_Percentage > 80:
-                        Final_parsed_string = (VCF_metadata[i][0] + " " + str(VCF_metadata[i][1] + 1) + " " + str(VCF_metadata[i][3]) + " " + str(VCF_metadata[i][4]) + " " + 'AA=' + "'" + str(Minor_or_Major_allele) + "'" + " " + str(Probability_Percentage / 100) + '\n')  # output string
+                    if Probability_Percentage > 50:
+                        Final_parsed_string = (VCF_metadata[i][0] + " " + str(VCF_metadata[i][1] + 1) + " " + str(VCF_metadata[i][3]) + " " + str(VCF_metadata[i][4]) + " " + str(Minor_or_Major_allele) + " " + str(Probability_Percentage / 100) + '\n')  # output string
                         j += 1
                         outfile.write(Final_parsed_string)  # writes final_parsed_string to a new file
-                    elif Probability_Percentage < 80:
+                    elif Probability_Percentage < 50.01:
                         Probability_Percentage = abs(100 - Probability_Percentage)
-                        Final_parsed_string = (VCF_metadata[i][0] + " " + str(VCF_metadata[i][1] + 1) + " " + str(VCF_metadata[i][3]) + " " + str(VCF_metadata[i][4]) + " " + 'AA=' + "'" + str(Minor_or_Major_allele) + "'" + " " + str(Probability_Percentage / 100) + '\n')  # output string
+                        Final_parsed_string = (VCF_metadata[i][0] + " " + str(VCF_metadata[i][1] + 1) + " " + str(VCF_metadata[i][3]) + " " + str(VCF_metadata[i][4]) + " " + str(Minor_or_Major_allele) + " " + str(Probability_Percentage / 100) + '\n')  # output string
                         j += 1
                         outfile.write(Final_parsed_string)  # writes final_parsed_string to a new file if major allele is not most prevalent
                     i += 1
