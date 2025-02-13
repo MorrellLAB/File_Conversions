@@ -3,11 +3,6 @@ INPUT_DIR=""
 OUTPUT_DIR=""
 REFERENCE=""
 
-#filter parameters 
-MIN_MQ=20     # Minimum mapping quality
-MIN_BQ=20     # Minimum base quality
-MIN_DEPTH=10  # Minimum depth for variant calling
-MAX_DEPTH=250 # Maximum depth to avoid regions with excessive coverage
  
 module load bcftools
 
@@ -30,16 +25,18 @@ process_sample() {
         return 1
     fi
 
+    
+
     # Step 1: Remove invariant sites
     # The -c 1 flag ensures that only sites with at least one alternate allele are kept.
 
     echo "   -> Filtering for polymorphic sites only..."
-    bcftools view -c 1 -Oz -o "${OUTPUT_PREFIX}.poly.vcf.gz" "${VCF_FILE}"
+    bcftools view -c 2 -Oz -o "${OUTPUT_PREFIX}.poly.vcf.gz" "${VCF_FILE}"
     bcftools index "${OUTPUT_PREFIX}.poly.vcf.gz"
 
     # Step 2: Apply additional filtering based on quality and depth
     echo "   -> Applying quality and depth filters..."
-    bcftools filter -e "QUAL<20 || MQ<${MIN_MQ} || FORMAT/DP<${MIN_DEPTH} || FORMAT/DP>${MAX_DEPTH} || INFO/DP<${MIN_DEPTH} || INFO/DP>${MAX_DEPTH}" \
+    bcftools filter -e 'QUAl<20 || INFO/DP<10 || INFO/DP>250' \
         -Oz \
         -o "${OUTPUT_PREFIX}.filtered.vcf.gz" \
         "${OUTPUT_PREFIX}.poly.vcf.gz"
