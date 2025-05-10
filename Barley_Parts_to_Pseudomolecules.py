@@ -159,10 +159,12 @@ def bed_conv(intervals, parts_sizes):
                 # And check if we have to modify the position. If the chromosome
                 # name has '_part2' in it, then we have to modify it.
                 if '_part2' in tmp[0]:
-                    #offset = parts_sizes[chrom + '_part1']
+                    # Get the offset from the part1 size
                     offset = parts_sizes[chrom]
-                    newstartpos = str(int(tmp[1]) + offset)
-                    newendpos = str(int(tmp[2]) + offset)
+                    # Adjust by subtracting 1 to account for 0-based BED coordinates
+                    # This prevents the progressive "off by one" error
+                    newstartpos = str(int(tmp[1]) + offset - 1)
+                    newendpos = str(int(tmp[2]) + offset - 1)
                 else:
                     newstartpos = tmp[1]
                     newendpos = tmp[2]
